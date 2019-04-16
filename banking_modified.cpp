@@ -20,6 +20,8 @@ public:
     int return_acc() const;
     char qtype() const;
     int return_balance() const;
+     void modify();
+    void report() const;
 };
 
 void acc::create_account()
@@ -48,15 +50,7 @@ void acc::show_account() const
     cout<<"\nBalance amount : "<<dep;
 }
 
-void write_acc()
-{
-    acc ac;
-    ofstream x;
-    x.open("info.dat",ios::binary|ios::app);
-    ac.create_account();
-    x.write(reinterpret_cast<char *> (&ac), sizeof(acc));
-    x.close();
-}
+
 void acc::depo(int x)
 {
     dep+=x;
@@ -72,6 +66,30 @@ char acc::qtype() const
 void acc::draw(int x)
 {
     dep-=x;
+}
+void acc::modify()
+{
+    cout<<"\nAccount Number : "<<n;
+    cout<<"\nModify Account Holder Name : ";
+    cin.ignore();
+    cin.getline(name,100);
+    cout<<"\nModify Type of Account : ";
+    cin>>type;
+    cout<<"\nModify Balance amount : ";
+    cin>>dep;
+}
+void acc::report() const
+{
+    cout<<n<<setw(10)<<" "<<name<<setw(10)<<" "<<type<<setw(10)<<dep<<endl;
+}
+void write_acc()
+{
+    acc ac;
+    ofstream x;
+    x.open("info.dat",ios::binary|ios::app);
+    ac.create_account();
+    x.write(reinterpret_cast<char *> (&ac), sizeof(acc));
+    x.close();
 }
 void dep_withdraw(int n, int option)
 {
@@ -145,6 +163,58 @@ void display_sp(int n)      //function to retrive a record from file stored
     if(flag==false)
         cout<<"\n\nAccount number does not exist";
 }
+void modify_acc(int n)
+{
+    bool found=false;
+    acc ac;
+    fstream x;
+    x.open("info.dat",ios::binary|ios::in|ios::out);
+    if(!x)
+    {
+        cout<<"File could not be open !! Press any Key...";
+        return;
+    }
+    while(!x.eof() && found==false)
+    {
+        x.read(reinterpret_cast<char *> (&ac), sizeof(acc));
+        if(ac.return_acc()==n)
+        {
+            ac.show_account();
+            cout<<"\n\nEnter The New Details of account"<<endl;
+            ac.modify();
+            int pos=(-1)*static_cast<int>(sizeof(acc));
+            x.seekp(pos,ios::cur);
+            x.write(reinterpret_cast<char *> (&ac), sizeof(acc));
+            cout<<"\n\n\t Record Updated";
+            found=true;
+          }
+    }
+    x.close();
+    if(found==false)
+        cout<<"\n\n Record Not Found ";
+}
+void display_all()
+{
+    acc ac;
+    ifstream x;
+    x.open("info.dat",ios::binary);
+    if(!x)
+    {
+        cout<<"File could not be open !! Press any Key...";
+        return;
+    }
+   // cout<<"\n\n\t\tACCOUNT HOLDER LIST\n\n";
+    cout<<"====================================================\n";
+    cout<<"A/c no.      NAME           Type  Balance\n";
+    cout<<"====================================================\n";
+    while(x.read(reinterpret_cast<char *> (&ac), sizeof(acc)))
+    {
+        ac.report();
+    }
+    x.close();
+}
+
+
 
 int main()
 {
@@ -191,7 +261,15 @@ int main()
             cout<<"\n\n\tEnter The Account Number : "; cin>>num;
             display_sp(num);
             break;
-                case '8':
+         case '5':
+            display_all();
+            break;
+         case '7':
+            cout<<"\n\n\tEnter The Account Number : ";
+            cin>>num;
+            modify_acc(num);
+            break;
+         case '8':
             cout<<"\n\n\tThanks For Visiting Our Bank!";
             break;
          default :cout<<"\a";
