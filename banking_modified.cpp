@@ -138,7 +138,7 @@ void dep_withdraw(int n, int option)
     if(found==false)
         cout<<"\n\n Record Not Found ";
 }
-void display_sp(int n)      //function to retrive a record from file stored
+void display_sp(int n)      
 {
     acc ac;
     bool flag=false;
@@ -193,6 +193,34 @@ void modify_acc(int n)
     if(found==false)
         cout<<"\n\n Record Not Found ";
 }
+
+void delete_acc(int n)
+{
+    acc ac;
+    ifstream x;
+    ofstream y;
+    x.open("info.dat",ios::binary);
+    if(!x)
+    {
+        cout<<"File could not be open !! Press any Key...";
+        return;
+    }
+    y.open("Temp.dat",ios::binary);
+    x.seekg(0,ios::beg);
+    while(x.read(reinterpret_cast<char *> (&ac), sizeof(acc)))
+    {
+        if(ac.return_acc()!=n)
+        {
+            y.write(reinterpret_cast<char *> (&ac), sizeof(acc));
+        }
+    }
+    x.close();
+    y.close();
+    remove("info.dat");
+    rename("Temp.dat","info.dat");
+    cout<<"\n\n\tRecord Deleted ..";
+}
+
 void display_all()
 {
     acc ac;
@@ -262,14 +290,22 @@ int main()
             display_sp(num);
             break;
          case '5':
+                system("cls");
             display_all();
             break;
+                case '6':
+            system("cls");
+            cout<<"\n\n\tEnter The Account Number : "; cin>>num;
+            delete_acc(num);
+            break;
          case '7':
+                system("cls");
             cout<<"\n\n\tEnter The Account Number : ";
             cin>>num;
             modify_acc(num);
             break;
          case '8':
+                system("cls");
             cout<<"\n\n\tThanks For Visiting Our Bank!";
             break;
          default :cout<<"\a";
